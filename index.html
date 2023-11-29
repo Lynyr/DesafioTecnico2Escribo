@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend para a API</title>
+</head>
+<body>
+    <h1>Frontend para a API</h1>
+
+    <h2>Cadastro de Usuário</h2>
+    <form id="registerForm">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" required><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" required><br>
+
+        <label for="senha">Senha:</label>
+        <input type="password" id="senha" required><br>
+
+        <label for="numero">Número de Telefone:</label>
+        <input type="text" id="numero" required><br>
+
+        <label for="ddd">DDD:</label>
+        <input type="text" id="ddd" required><br>
+
+        <button type="button" onclick="registerUser()">Cadastrar</button>
+    </form>
+
+    <h2>Login</h2>
+    <form id="loginForm">
+        <label for="loginEmail">Email:</label>
+        <input type="email" id="loginEmail" required><br>
+
+        <label for="loginSenha">Senha:</label>
+        <input type="password" id="loginSenha" required><br>
+
+        <button type="button" onclick="login()">Login</button>
+    </form>
+
+    <h2>Buscar Usuário</h2>
+    <button type="button" onclick="getUserInfo()">Buscar Usuário</button>
+
+    <h2>Resultado</h2>
+    <pre id="result"></pre>
+
+    <script>
+        const apiUrl = '';
+
+        async function registerUser() {
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const numero = document.getElementById('numero').value;
+            const ddd = document.getElementById('ddd').value;
+
+            const telefones = [{ numero, ddd }];
+
+            const data = {
+                nome,
+                email,
+                senha,
+                telefones
+            };
+
+            try {
+                const response = await fetch(`${apiUrl}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                console.error('Erro ao cadastrar usuário:', error);
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const senha = document.getElementById('loginSenha').value;
+
+            const data = {
+                email,
+                senha
+            };
+
+            try {
+                const response = await fetch(`${apiUrl}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                console.error('Erro ao fazer login:', error);
+            }
+        }
+
+        async function getUserInfo() {
+            const token = prompt('Informe o token de autenticação:');
+
+            try {
+                const response = await fetch(`${apiUrl}/user`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                });
+
+                const result = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                console.error('Erro ao buscar usuário:', error);
+            }
+        }
+    </script>
+</body>
+</html>
