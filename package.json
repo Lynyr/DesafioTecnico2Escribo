@@ -4,6 +4,7 @@
   "description": "Desafio Tecnico API",
   "main": "app.js",
   "scripts": {
+    "heroku-postbuild": "npm run lint && tsc",
     "start": "node api/app.js",
     "dev": "nodemon api/app.js",
     "lint": "eslint .",
@@ -35,6 +36,8 @@
     "sqlite3": "^5.1.6"
   },
   "devDependencies": {
-    "jshint": "^2.13.6"
+    "jshint": "^2.13.6",
+    "eslint": "^7.32.0",
+    "typescript": "^4.4.3"
   }
 }
