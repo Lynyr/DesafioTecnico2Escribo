@@ -1,29 +1,38 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-//Caso seja utilizado um banco de dados SQlite retirar a linha seguinte de comentário para utilizar o modelo do sequelize
-//const { User } = require('../models');
-
-// Simulação de banco de dados, comentar linha seguinte caso seja usado o modelo
+// Simulação de banco de dados
 let users = [];
 
 const createUser = async (req, res) => {
   try {
     const { nome, email, senha, telefones } = req.body;
 
+    // Verifica se o email já está em uso
+    if (users.some(user => user.email === email)) {
+      return res.status(400).json({ error: 'Email já cadastrado' });
+    }
+
     // Hash da senha
     const hashedPassword = await bcrypt.hash(senha, 10);
 
-    // Criação do usuário
-    const user = await User.create({
+    // Criação do usuário simulado
+    const user = {
+      id: users.length + 1,
       nome,
       email,
       senha: hashedPassword,
       telefones,
-    });
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ultimo_login: new Date(),
+    };
+
+    // Adiciona o usuário ao array simulado
+    users.push(user);
 
     // Geração do token JWT
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '30m' });
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     // Resposta ao cliente
     res.status(201).json({
@@ -43,21 +52,26 @@ const loginUser = async (req, res) => {
   try {
     const { email, senha } = req.body;
 
-    // Busca do usuário pelo email
-    const user = await User.findOne({ where: { email } });
+    // Busca do usuário simulado pelo email
+    const user = users.find(user => user.email === email);
+
+    // Verifica se o usuário existe
+    if (!user) {
+      return res.status(401).json({ error: 'Credenciais inválidas' });
+    }
 
     // Verificação da senha
     const validPassword = await bcrypt.compare(senha, user.senha);
 
     if (!validPassword) {
-      return res.status(401).json({ error: 'Usuário e/ou senha inválidos' });
+      return res.status(401).json({ error: 'Credenciais inválidas' });
     }
 
     // Geração do token JWT
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '30m' });
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     // Atualização da última data de login
-    user.update({ ultimo_login: new Date() });
+    user.ultimo_login = new Date();
 
     // Resposta ao cliente
     res.json({
@@ -75,7 +89,7 @@ const loginUser = async (req, res) => {
 
 const getUserInfo = async (req, res) => {
   try {
-    const user = await User.findByPk(req.userId);
+    const user = users.find(user => user.id === req.userId);
 
     // Verifica se o usuário existe
     if (!user) {
