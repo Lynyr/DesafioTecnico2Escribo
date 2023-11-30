@@ -96,6 +96,13 @@ const getUserInfo = async (req, res) => {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
+    // Verifica se o token é válido e se ainda não expirou
+    const decodedToken = jwt.verify(req.token, process.env.JWT_SECRET);
+
+    if (!decodedToken || decodedToken.id !== user.id) {
+      return res.status(401).json({ error: 'Não autorizado' });
+    }
+
     // Resposta ao cliente
     res.json({
       id: user.id,
@@ -104,8 +111,12 @@ const getUserInfo = async (req, res) => {
       ultimo_login: user.ultimo_login,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Erro interno no servidor' });
+    if (error.name === 'TokenExpiredError') {
+      res.status(401).json({ error: 'Sessão inválida' });
+    } else {
+      console.error(error);
+      res.status(500).json({ error: 'Erro interno no servidor' });
+    }
   }
 };
 
