@@ -10,7 +10,7 @@ const createUser = async (req, res) => {
 
     // Verifica se o email já está em uso
     if (users.some(user => user.email === email)) {
-      return res.status(400).json({ error: 'Email já cadastrado' });
+      return res.status(400).json({ error: 'Email já existente' });
     }
 
     // Hash da senha
@@ -32,7 +32,7 @@ const createUser = async (req, res) => {
     users.push(user);
 
     // Geração do token JWT
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '30m' });
 
     // Resposta ao cliente
     res.status(201).json({
@@ -57,18 +57,18 @@ const loginUser = async (req, res) => {
 
     // Verifica se o usuário existe
     if (!user) {
-      return res.status(401).json({ error: 'Credenciais inválidas' });
+      return res.status(401).json({ error: 'Usuário e/ou senha inválidos' });
     }
 
     // Verificação da senha
     const validPassword = await bcrypt.compare(senha, user.senha);
 
     if (!validPassword) {
-      return res.status(401).json({ error: 'Credenciais inválidas' });
+      return res.status(401).json({ error: 'Usuário e/ou senha inválidos' });
     }
 
     // Geração do token JWT
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '30m' });
 
     // Atualização da última data de login
     user.ultimo_login = new Date();
