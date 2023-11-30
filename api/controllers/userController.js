@@ -18,7 +18,7 @@ const createUser = async (req, res) => {
     });
 
     // Geração do token JWT
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '30m' });
 
     // Resposta ao cliente
     res.status(201).json({
@@ -45,11 +45,11 @@ const loginUser = async (req, res) => {
     const validPassword = await bcrypt.compare(senha, user.senha);
 
     if (!validPassword) {
-      return res.status(401).json({ error: 'Credenciais inválidas' });
+      return res.status(401).json({ error: 'Usuário e/ou senha inválidos' });
     }
 
     // Geração do token JWT
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '30m' });
 
     // Atualização da última data de login
     user.update({ ultimo_login: new Date() });
