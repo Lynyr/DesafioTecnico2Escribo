@@ -1,6 +1,11 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { User } = require('../models');
+
+//Caso seja utilizado um banco de dados SQlite retirar a linha seguinte de comentário para utilizar o modelo do sequelize
+//const { User } = require('../models');
+
+// Simulação de banco de dados, comentar linha seguinte caso seja usado o modelo
+let users = [];
 
 const createUser = async (req, res) => {
   try {
